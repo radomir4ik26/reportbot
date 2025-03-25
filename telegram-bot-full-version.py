@@ -139,7 +139,7 @@ async def handle_time_date(message: types.Message, state: FSMContext):
     
     if not reasons:
         # Якщо не вдалося завантажити причини, просимо користувача ввести причину вручну
-        await message.answer("Введіть причину рапорту:")
+        await message.answer("Введіть причину рапорту:", reply_markup=ReplyKeyboardRemove())
     else:
         # Створюємо клавіатуру з причинами
         keyboard = []
@@ -239,7 +239,7 @@ def generate_report(template_path, commander, name, rank, time_date, reason, add
                 # Для жіночих прізвищ та інших випадків
                 last_name_genitive = last_name
             
-            # Змінений формат: Ім'я ПРІЗВИЩЕ (наприклад, Радомир ВІНІЧЕНКО)
+            # Змінений формат: Ім'я ПРІЗВИЩЕ (наприклад, Денис АРТЕМАСОВ)
             formal_name = f"{first_name} {last_name.upper()}"
             
             # Формат для згадування: ПРІЗВИЩА І.П. (у родовому відмінку)
@@ -261,7 +261,7 @@ def generate_report(template_path, commander, name, rank, time_date, reason, add
                 # Для жіночих прізвищ та інших випадків
                 last_name_genitive = last_name
             
-            # Змінений формат: Ім'я ПРІЗВИЩЕ (наприклад, Радомир ВІНІЧЕНКО)
+            # Змінений формат: Ім'я ПРІЗВИЩЕ (наприклад, Денис АРТЕМАСОВ)
             formal_name = f"{first_name} {last_name.upper()}"
             
             # Формат для згадування: ПРІЗВИЩА І. (родовий відмінок)

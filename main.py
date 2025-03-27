@@ -1,3 +1,4 @@
+import os
 import logging 
 import asyncio
 from aiogram import Bot, Dispatcher, types, F
@@ -6,10 +7,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from docx import Document
-import os
+import uvicorn
+
+# Отримання токену та порту з змінних оточення
+API_TOKEN = os.environ.get('API_TOKEN', '8035646713:AAGaYfc6NcmAHR0iseSNu7Vcs2N6tOodlXI')
+PORT = int(os.environ.get('PORT', 10000))
 
 # Налаштування бота
-API_TOKEN = "8035646713:AAGaYfc6NcmAHR0iseSNu7Vcs2N6tOodlXI"
 bot = Bot(token=API_TOKEN)
 storage = MemoryStorage()
 
@@ -302,7 +306,13 @@ def generate_report(template_path, commander, name, rank, time_date, reason, add
         logging.error(f"Помилка при генерації рапорту: {e}")
         raise
 
-# Запуск бота
+# Додаємо підтримку веб-сервера для Render
+async def web_server():
+    """Функція для створення веб-сервера на Render"""
+    app = types.FastAPIApp()
+    return app
+
+# Головна функція для запуску
 async def main():
     try:
         # Перевіряємо наявність шаблону документа
@@ -319,13 +329,30 @@ async def main():
         if not os.path.exists(reasons_path):
             logging.warning(f"Файл зі списком причин '{reasons_path}' не знайдено!")
             print(f"Попередження: файл '{reasons_path}' не існує. Буде використано порожній список.")
-            
+        
+        # Додаємо WebApp для health-check на Render
+        web_app = await web_server()
+        
+        # Паралельний запуск бота та веб-сервера
+        server = asyncio.create_task(
+            uvicorn.run(
+                web_app, 
+                host="0.0.0.0", 
+                port=PORT, 
+                log_level="info"
+            )
+        )
+        
         # Запускаємо бота
-        logging.info("Бот запущено!")
-        await dp.start_polling(bot)
+        bot_task = asyncio.create_task(dp.start_polling(bot))
+        
+        # Очікуємо завершення обох задач
+        await asyncio.gather(server, bot_task)
+        
     except Exception as e:
         logging.error(f"Помилка при запуску бота: {e}")
 
+# Точка входу
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     asyncio.run(main())

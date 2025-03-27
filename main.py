@@ -11,6 +11,7 @@ import os
 # Налаштування бота
 API_TOKEN = "8035646713:AAGaYfc6NcmAHR0iseSNu7Vcs2N6tOodlXI"
 bot = Bot(token=API_TOKEN)
+PORT = int(os.environ.get('PORT', 10000))
 storage = MemoryStorage()
 
 # Визначення шляхів до файлів
